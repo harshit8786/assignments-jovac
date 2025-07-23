@@ -1,0 +1,399 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 import 'package:flutter/material.dart';\
+\
+void main() \{\
+  runApp(\
+    const MyApp(),\
+  );\
+\}\
+\
+/// DATA_MODEL\
+/// Represents a single task with a name and a completion status.\
+class Task \{\
+  final String name;\
+  bool isCompleted;\
+\
+  Task(\{required this.name, this.isCompleted = false\});\
+\}\
+\
+class MyApp extends StatelessWidget \{\
+  const MyApp(\{super.key\});\
+\
+  @override\
+  Widget build(BuildContext context) \{\
+    return MaterialApp(\
+      title: 'Interactive Demo',\
+      debugShowCheckedModeBanner: false,\
+      theme: ThemeData.dark().copyWith(\
+        scaffoldBackgroundColor: const Color(0xFF1F1F1F),\
+        // Define default colors for widgets to match the design\
+        colorScheme: const ColorScheme.dark().copyWith(\
+          primary: const Color(0xFF3D9C6C), // Used by some widgets like Switch\
+          secondary: const Color(0xFF3D9C6C),\
+        ),\
+        textTheme: TextTheme(\
+          bodyLarge: TextStyle(color: Colors.white),\
+          bodyMedium: TextStyle(color: Colors.white70),\
+          titleLarge: TextStyle(color: Colors.white),\
+          titleMedium: TextStyle(color: Colors.white),\
+          titleSmall: TextStyle(color: Colors.white),\
+          displayLarge: TextStyle(color: Colors.white),\
+          displayMedium: TextStyle(color: Colors.white),\
+          displaySmall: TextStyle(color: Colors.white),\
+          headlineLarge: TextStyle(color: Colors.white),\
+          headlineMedium: TextStyle(color: Colors.white),\
+          headlineSmall: TextStyle(color: Colors.white),\
+          labelLarge: TextStyle(color: Colors.white),\
+          labelMedium: TextStyle(color: Colors.white),\
+          labelSmall: TextStyle(color: Colors.white),\
+        ).apply(\
+          bodyColor: Colors.white,\
+          displayColor: Colors.white,\
+        ),\
+      ),\
+      home: const InteractiveDemoScreen(),\
+    );\
+  \}\
+\}\
+\
+/// The main screen displaying the interactive demo features.\
+class InteractiveDemoScreen extends StatefulWidget \{\
+  const InteractiveDemoScreen(\{super.key\});\
+\
+  @override\
+  State<InteractiveDemoScreen> createState() => _InteractiveDemoScreenState();\
+\}\
+\
+class _InteractiveDemoScreenState extends State<InteractiveDemoScreen> \{\
+  // State for the counter feature, managed by ValueNotifier\
+  late ValueNotifier<int> _counter;\
+\
+  // State for the visibility toggle feature, managed by setState\
+  bool _showWidget = true;\
+\
+  // State for the task list feature, managed by setState\
+  List<Task> _tasks = <Task>[];\
+\
+  @override\
+  void initState() \{\
+    super.initState();\
+    _counter = ValueNotifier<int>(0);\
+    _tasks = <Task>[\
+      Task(name: 'Task 1: Buy groceries', isCompleted: false),\
+      Task(name: 'Task 2: Finish report', isCompleted: false),\
+      Task(name: 'Task 3: Call mom', isCompleted: false),\
+    ];\
+  \}\
+\
+  @override\
+  void dispose() \{\
+    _counter.dispose(); // Dispose ValueNotifier to prevent memory leaks\
+    super.dispose();\
+  \}\
+\
+  /// Increments the counter value.\
+  void _incrementCounter() \{\
+    _counter.value++;\
+  \}\
+\
+  /// Toggles the visibility of the widget.\
+  void _toggleVisibility(bool value) \{\
+    setState(() \{\
+      _showWidget = value;\
+    \});\
+  \}\
+\
+  /// Toggles the completion status of a task at a given index.\
+  void _toggleTaskCompletion(int index, bool? value) \{\
+    if (value != null) \{\
+      setState(() \{\
+        _tasks[index].isCompleted = value;\
+      \});\
+    \}\
+  \}\
+\
+  @override\
+  Widget build(BuildContext context) \{\
+    const double horizontalPadding = 24.0;\
+    const double sectionSpacing = 48.0;\
+\
+    return Scaffold(\
+      body: SafeArea(\
+        child: SingleChildScrollView(\
+          child: Padding(\
+            padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),\
+            child: Column(\
+              crossAxisAlignment: CrossAxisAlignment.start,\
+              children: <Widget>[\
+                // "Interactive Demo" text at the top right\
+                Align(\
+                  alignment: Alignment.topRight,\
+                  child: Padding(\
+                    padding: const EdgeInsets.only(top: 16.0),\
+                    child: Text(\
+                      'Interactive Demo',\
+                      style: TextStyle(\
+                        fontSize: 18,\
+                        fontWeight: FontWeight.bold,\
+                        color: Colors.white.withOpacity(0.8),\
+                      ),\
+                    ),\
+                  ),\
+                ),\
+                SizedBox(height: sectionSpacing),\
+\
+                // Counter Section\
+                _CounterSection(\
+                  counterNotifier: _counter,\
+                  onIncrement: _incrementCounter,\
+                ),\
+                SizedBox(height: sectionSpacing),\
+\
+                // Toggle Visibility Section\
+                _VisibilitySection(\
+                  showWidget: _showWidget,\
+                  onToggle: _toggleVisibility,\
+                ),\
+                SizedBox(height: sectionSpacing),\
+\
+                // Task List Section\
+                _TaskListSection(\
+                  tasks: _tasks,\
+                  onToggleTask: _toggleTaskCompletion,\
+                ),\
+                SizedBox(height: sectionSpacing), // Bottom padding for scroll\
+              ],\
+            ),\
+          ),\
+        ),\
+      ),\
+    );\
+  \}\
+\}\
+\
+/// A stateless widget displaying the counter feature.\
+class _CounterSection extends StatelessWidget \{\
+  final ValueNotifier<int> counterNotifier;\
+  final VoidCallback onIncrement;\
+\
+  const _CounterSection(\{\
+    required this.counterNotifier,\
+    required this.onIncrement,\
+  \});\
+\
+  @override\
+  Widget build(BuildContext context) \{\
+    return Column(\
+      crossAxisAlignment: CrossAxisAlignment.start,\
+      children: <Widget>[\
+        const Text(\
+          'Counter',\
+          style: TextStyle(\
+            fontSize: 24,\
+            fontWeight: FontWeight.bold,\
+            color: Colors.white,\
+          ),\
+        ),\
+        const SizedBox(height: 8),\
+        const Text(\
+          'Tap the button to increment the counter.',\
+          style: TextStyle(\
+            fontSize: 16,\
+            color: Colors.white70,\
+          ),\
+        ),\
+        const SizedBox(height: 16),\
+        ValueListenableBuilder<int>(\
+          valueListenable: counterNotifier,\
+          builder: (BuildContext context, int count, Widget? child) \{\
+            return Text(\
+              'Count: $count',\
+              style: const TextStyle(\
+                fontSize: 20,\
+                color: Colors.white,\
+                fontWeight: FontWeight.w500,\
+              ),\
+            );\
+          \},\
+        ),\
+        const SizedBox(height: 24),\
+        ElevatedButton(\
+          onPressed: onIncrement,\
+          style: ElevatedButton.styleFrom(\
+            backgroundColor: const Color(0xFF3D9C6C), // Button background color\
+            foregroundColor: Colors.white, // Text color\
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),\
+            shape: RoundedRectangleBorder(\
+              borderRadius: BorderRadius.circular(24),\
+            ),\
+            elevation: 0, // No shadow\
+          ),\
+          child: const Text(\
+            'Increment',\
+            style: TextStyle(fontSize: 16),\
+          ),\
+        ),\
+      ],\
+    );\
+  \}\
+\}\
+\
+/// A stateless widget displaying the visibility toggle feature.\
+class _VisibilitySection extends StatelessWidget \{\
+  final bool showWidget;\
+  final ValueChanged<bool> onToggle;\
+\
+  const _VisibilitySection(\{\
+    required this.showWidget,\
+    required this.onToggle,\
+  \});\
+\
+  @override\
+  Widget build(BuildContext context) \{\
+    return Column(\
+      crossAxisAlignment: CrossAxisAlignment.start,\
+      children: <Widget>[\
+        const Text(\
+          'Toggle Visibility',\
+          style: TextStyle(\
+            fontSize: 24,\
+            fontWeight: FontWeight.bold,\
+            color: Colors.white,\
+          ),\
+        ),\
+        const SizedBox(height: 8),\
+        const Text(\
+          'Toggle the visibility of the widget below.',\
+          style: TextStyle(\
+            fontSize: 16,\
+            color: Colors.white70,\
+          ),\
+        ),\
+        const SizedBox(height: 16),\
+        Row(\
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,\
+          children: <Widget>[\
+            const Text(\
+              'Show Widget',\
+              style: TextStyle(\
+                fontSize: 18,\
+                color: Colors.white,\
+                fontWeight: FontWeight.w500,\
+              ),\
+            ),\
+            Switch(\
+              value: showWidget,\
+              onChanged: onToggle,\
+              activeColor: Colors.white, // Active thumb color\
+              activeTrackColor: const Color(0xFF3D9C6C), // Active track color\
+              inactiveThumbColor: Colors.white, // Inactive thumb color\
+              inactiveTrackColor: Colors.grey[700], // Inactive track color\
+            ),\
+          ],\
+        ),\
+        const SizedBox(height: 24),\
+        AnimatedOpacity(\
+          opacity: showWidget ? 1.0 : 0.0,\
+          duration: const Duration(milliseconds: 300),\
+          child: Container(\
+            width: double.infinity,\
+            height: 200, // Fixed height for the image container\
+            decoration: BoxDecoration(\
+              borderRadius: BorderRadius.circular(16),\
+              color: Colors.grey[800], // Placeholder background\
+            ),\
+            child: ClipRRect(\
+              borderRadius: BorderRadius.circular(16),\
+              child: Image.network(\
+                'https://www.gstatic.com/flutter-onestack-prototype/genui/example_1.jpg',\
+                fit: BoxFit.cover,\
+                errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) \{\
+                  return Center(\
+                    child: Icon(Icons.broken_image, color: Colors.white70, size: 50),\
+                  );\
+                \},\
+              ),\
+            ),\
+          ),\
+        ),\
+      ],\
+    );\
+  \}\
+\}\
+\
+/// A stateless widget displaying the task list feature.\
+class _TaskListSection extends StatelessWidget \{\
+  final List<Task> tasks;\
+  final void Function(int index, bool? value) onToggleTask;\
+\
+  const _TaskListSection(\{\
+    required this.tasks,\
+    required this.onToggleTask,\
+  \});\
+\
+  @override\
+  Widget build(BuildContext context) \{\
+    return Column(\
+      crossAxisAlignment: CrossAxisAlignment.start,\
+      children: <Widget>[\
+        const Text(\
+          'Task List',\
+          style: TextStyle(\
+            fontSize: 24,\
+            fontWeight: FontWeight.bold,\
+            color: Colors.white,\
+          ),\
+        ),\
+        const SizedBox(height: 8),\
+        const Text(\
+          'Mark tasks as completed by checking the boxes.',\
+          style: TextStyle(\
+            fontSize: 16,\
+            color: Colors.white70,\
+          ),\
+        ),\
+        const SizedBox(height: 16),\
+        Column(\
+          children: tasks.asMap().entries.map<Widget>((MapEntry<int, Task> entry) \{\
+            final int index = entry.key;\
+            final Task task = entry.value;\
+            return Padding(\
+              padding: const EdgeInsets.symmetric(vertical: 4.0),\
+              child: Row(\
+                children: <Widget>[\
+                  Expanded(\
+                    child: Text(\
+                      task.name,\
+                      style: TextStyle(\
+                        fontSize: 18,\
+                        color: task.isCompleted ? Colors.white54 : Colors.white,\
+                        decoration: task.isCompleted ? TextDecoration.lineThrough : TextDecoration.none,\
+                      ),\
+                    ),\
+                  ),\
+                  SizedBox(\
+                    width: 24.0, // Standard size for checkbox\
+                    height: 24.0,\
+                    child: Checkbox(\
+                      value: task.isCompleted,\
+                      onChanged: (bool? newValue) => onToggleTask(index, newValue),\
+                      activeColor: const Color(0xFF3D9C6C),\
+                      checkColor: Colors.white,\
+                      side: const BorderSide(color: Colors.white70, width: 2), // Custom border color\
+                    ),\
+                  ),\
+                ],\
+              ),\
+            );\
+          \}).toList(),\
+        ),\
+      ],\
+    );\
+  \}\
+\}}
